@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>eFootball PL 2026 — League Table</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="league-logo.jpg" type="image/jpeg"/>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo-area" href="index.html">
+      <img src="league-logo.jpg" alt="eFootball PL 2026"/>
+      <div class="logo-text">
+        <span class="league-name">eFOOTBALL PL</span>
+        <span class="season">2026 Season</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html" class="active">Table</a>
+      <a href="fixtures.html">Fixtures</a>
+      <a href="#" class="admin-btn" id="openAdmin">⚙ Admin</a>
+    </nav>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main>
+  <div class="page-title">League Table</div>
+  <div class="page-subtitle">2026 Season · eFootball Mobile</div>
+
+  <!-- STATS STRIP -->
+  <div class="stats-strip" id="statsStrip">
+    <div class="stat-box"><div class="num" id="statMatches">0</div><div class="lbl">Matches Played</div></div>
+    <div class="stat-box"><div class="num" id="statGoals">0</div><div class="lbl">Total Goals</div></div>
+    <div class="stat-box"><div class="num" id="statTeams">10</div><div class="lbl">Teams</div></div>
+    <div class="stat-box"><div class="num" id="statFixtures">0</div><div class="lbl">Remaining</div></div>
+  </div>
+
+  <!-- TABLE CARD -->
+  <div class="section-heading">Standings</div>
+  <div class="card">
+    <div class="table-wrapper">
+      <table class="league-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Team</th>
+            <th title="Played">P</th>
+            <th title="Won">W</th>
+            <th title="Drawn">D</th>
+            <th title="Lost">L</th>
+            <th title="Goals For">GF</th>
+            <th title="Goals Against">GA</th>
+            <th title="Goal Difference">GD</th>
+            <th title="Points">PTS</th>
+            <th title="Last 5">Form</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody">
+          <tr><td colspan="11"><div class="loading"><div class="spinner"></div><br/>Loading table...</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="table-legend">
+    <div class="legend-item"><div class="legend-bar" style="background:#c9a84c"></div> Top 4 — Champions</div>
+    <div class="legend-item"><div class="legend-bar" style="background:#ff4444"></div> Bottom 3 — Relegation Zone</div>
+  </div>
+</main>
+
+<!-- ADMIN MODAL: PIN -->
+<div class="modal-overlay hidden" id="pinOverlay">
+  <div class="modal">
+    <h2>🔐 Admin Access</h2>
+    <p>Enter the admin PIN to manage results.</p>
+    <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="10" inputmode="numeric"/>
+    <div class="error-msg hidden" id="pinError">Incorrect PIN. Try again.</div>
+    <div class="btn-row">
+      <button class="btn btn-gold" id="pinSubmit">Unlock</button>
+      <button class="btn btn-ghost" id="pinCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Created by <span>ZiezGeek</span> · eFootball PL 2026 · All Rights Reserved</p>
+</footer>
+
+<script type="module" src="table.js"></script>
+</body>
+</html>

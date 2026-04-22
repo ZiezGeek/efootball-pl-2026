@@ -8,14 +8,13 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/fireba
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-
+    apiKey: "AIzaSyCroN8RZxsOK-AZUOlqNLVvjsaq7xJneLw",
+    authDomain: "efootball-be51c.firebaseapp.com",
+    databaseURL: "https://efootball-be51c-default-rtdb.firebaseio.com",
+    projectId: "efootball-be51c",
+    storageBucket: "efootball-be51c.firebasestorage.app",
+    messagingSenderId: "283290021571",
+    appId: "1:283290021571:web:f7c17f4cf967b1658cfc76"
+  };
 const app = initializeApp(firebaseConfig);
 export const db = getDatabase(app);

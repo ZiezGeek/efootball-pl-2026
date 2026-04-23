@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>eFootball PL 2026 — Team Profile</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="league-logo.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#c9a84c"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="ePL 2026"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <style>
+
+    /* ---- TEAM HERO ---- */
+    .team-hero {
+      border-radius: 12px;
+      padding: 36px 28px;
+      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--navy-border);
+      background: var(--navy-card);
+    }
+
+    .team-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--hero-gradient, linear-gradient(135deg, rgba(201,168,76,0.1), transparent));
+      pointer-events: none;
+    }
+
+    .team-hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--hero-accent, var(--gold));
+    }
+
+    .hero-logo {
+      flex-shrink: 0;
+      filter: drop-shadow(0 4px 24px rgba(0,0,0,0.5));
+    }
+
+    .hero-info { flex: 1; }
+
+    .hero-team-name {
+      font-family: var(--font-display);
+      font-size: clamp(24px, 5vw, 42px);
+      letter-spacing: 3px;
+      color: var(--white);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+
+    .hero-team-short {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      letter-spacing: 4px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .hero-position {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(201,168,76,0.12);
+      border: 1px solid var(--gold-dark);
+      border-radius: 20px;
+      padding: 6px 16px;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--gold);
+      letter-spacing: 1px;
+    }
+
+    /* ---- TEAM SELECTOR ---- */
+    .team-select-bar {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .team-select-bar label {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .team-select-bar select {
+      flex: 1;
+      min-width: 200px;
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 16px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .team-select-bar select:focus { border-color: var(--gold-dark); }
+    .team-select-bar select option { background: var(--navy-card); }
+
+    /* ---- KEY STATS ROW ---- */
+    .key-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+
+    .ks-box {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 16px 10px;
+      text-align: center;
+    }
+
+    .ks-num {
+      font-family: var(--font-display);
+      font-size: 32px;
+      line-height: 1;
+      color: var(--gold);
+    }
+
+    .ks-lbl {
+      font-family: var(--font-ui);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ---- FORM CHART ---- */
+    .form-chart-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 28px;
+    }
+
+    .chart-title {
+      font-family: var(--font-display);
+      font-size: 16px;
+      letter-spacing: 3px;
+      color: var(--gold);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .chart-title::before {
+      content: '';
+      display: inline-block;
+      width: 3px; height: 16px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+
+    /* SVG chart container */
+    .chart-svg-wrap {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 8px;
+    }
+
+    .chart-svg-wrap svg {
+      display: block;
+      min-width: 300px;
+    }
+
+    /* Form result dots below chart */
+    .form-dots-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    .form-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--navy-light);
+      border-radius: 20px;
+      padding: 4px 10px 4px 6px;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .form-chip .badge {
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 9px;
+    }
+
+    .form-chip .badge.W { background: var(--green); color: #000; }
+    .form-chip .badge.D { background: var(--yellow); color: #000; }
+    .form-chip .badge.L { background: var(--red); color: #fff; }
+
+    /* ---- RECENT RESULTS ---- */
+    .result-row {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: auto 1fr auto auto;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-ui);
+      font-size: 13px;
+    }
+
+    .result-outcome {
+      width: 28px; height: 28px;
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 11px;
+      flex-shrink: 0;
+    }
+
+    .result-outcome.W { background: var(--green); color: #000; }
+    .result-outcome.D { background: var(--yellow); color: #000; }
+    .result-outcome.L { background: var(--red); color: #fff; }
+
+    .result-opponent {
+      display: flex; align-items: center; gap: 8px;
+      font-weight: 600; color: var(--white);
+    }
+
+    .home-away-tag {
+      font-size: 10px;
+      letter-spacing: 1px;
+      color: var(--muted);
+      background: var(--navy-light);
+      border-radius: 4px;
+      padding: 2px 6px;
+    }
+
+    .result-score {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--gold);
+      letter-spacing: 1px;
+      white-space: nowrap;
+    }
+
+    .result-date {
+      font-size: 11px;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .no-data {
+      text-align: center;
+      padding: 40px 20px;
+      font-family: var(--font-ui);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* ---- UPCOMING ---- */
+    .upcoming-row {
+      background: var(--navy-card);
+      border: 1px solid rgba(201,168,76,0.15);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-ui);
+      font-size: 13px;
+    }
+
+    /* ---- H2H QUICK LINK ---- */
+    .h2h-links {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+
+    .h2h-link-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--navy-light);
+      border: 1px solid var(--navy-border);
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+
+    .h2h-link-btn:hover {
+      border-color: var(--gold-dark);
+      color: var(--gold);
+    }
+
+    @media (max-width: 500px) {
+      .team-hero { flex-direction: column; text-align: center; }
+      .result-row { grid-template-columns: auto 1fr auto; }
+      .result-date { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo-area" href="index.html">
+      <img src="league-logo.jpg" alt="eFootball PL 2026"/>
+      <div class="logo-text">
+        <span class="league-name">eFOOTBALL PL</span>
+        <span class="season">2026 Season</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Table</a>
+      <a href="fixtures.html">Fixtures</a>
+      <a href="scorers.html">Golden Boot</a>
+      <a href="h2h.html">H2H</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="page-title">Team Profile</div>
+  <div class="page-subtitle">Stats · Form Chart · Results</div>
+
+  <!-- TEAM SELECTOR -->
+  <div class="team-select-bar">
+    <label>Select Team</label>
+    <select id="teamSelect">
+      <option value="">— Choose a Team —</option>
+    </select>
+  </div>
+
+  <div id="profileContent" style="display:none;">
+
+    <!-- HERO -->
+    <div class="team-hero" id="teamHero">
+      <div class="hero-logo" id="heroLogo"></div>
+      <div class="hero-info">
+        <div class="hero-team-name" id="heroName">—</div>
+        <div class="hero-team-short" id="heroShort">—</div>
+        <div class="hero-position" id="heroPosition">— Position in table</div>
+      </div>
+    </div>
+
+    <!-- KEY STATS -->
+    <div class="key-stats">
+      <div class="ks-box"><div class="ks-num" id="ksP">0</div><div class="ks-lbl">Played</div></div>
+      <div class="ks-box"><div class="ks-num" id="ksW">0</div><div class="ks-lbl">Won</div></div>
+      <div class="ks-box"><div class="ks-num" id="ksD">0</div><div class="ks-lbl">Drawn</div></div>
+      <div class="ks-box"><div class="ks-num" id="ksL">0</div><div class="ks-lbl">Lost</div></div>
+      <div class="ks-box"><div class="ks-num" id="ksPts">0</div><div class="ks-lbl">Points</div></div>
+      <div class="ks-box"><div class="ks-num" id="ksGF">0</div><div class="ks-lbl">Goals For</div></div>
+      <div class="ks-box"><div class="ks-num" id="ksGA">0</div><div class="ks-lbl">Goals Against</div></div>
+      <div class="ks-box"><div class="ks-num" id="ksGD">0</div><div class="ks-lbl">Goal Diff</div></div>
+    </div>
+
+    <!-- FORM CHART -->
+    <div class="form-chart-card">
+      <div class="chart-title">Form Chart — Points Per Match</div>
+      <div class="chart-svg-wrap" id="chartWrap">
+        <div class="no-data">No matches played yet.</div>
+      </div>
+      <div class="form-dots-row" id="formDots"></div>
+    </div>
+
+    <!-- RECENT RESULTS -->
+    <div class="section-heading">Recent Results</div>
+    <div id="recentResults"><div class="no-data">No results yet.</div></div>
+
+    <!-- UPCOMING -->
+    <div class="section-heading" style="margin-top:28px;">Upcoming Fixtures</div>
+    <div id="upcomingFixtures"><div class="no-data">No upcoming matches.</div></div>
+
+    <!-- H2H QUICK LINKS -->
+    <div class="section-heading" style="margin-top:28px;">Head-to-Head vs Other Teams</div>
+    <div class="h2h-links" id="h2hLinks"></div>
+
+  </div>
+</main>
+
+<div id="toast"></div>
+<footer>
+  <p>Created by <span>ZiezGeek</span> · eFootball PL 2026 · All Rights Reserved</p>
+</footer>
+
+<script type="module" src="team.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

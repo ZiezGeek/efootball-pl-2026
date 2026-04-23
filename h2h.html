@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>eFootball PL 2026 — Head to Head</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="league-logo.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#c9a84c"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="ePL 2026"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <style>
+    /* ---- H2H SELECTOR ---- */
+    .h2h-selector {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 36px;
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .team-picker { text-align: center; }
+
+    .team-picker label {
+      display: block;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .team-picker select {
+      width: 100%;
+      background: var(--navy-light);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      color: var(--white);
+      font-family: var(--font-ui);
+      font-weight: 600;
+      font-size: 14px;
+      padding: 12px 14px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .team-picker select:focus { border-color: var(--gold-dark); }
+    .team-picker select option { background: var(--navy-card); }
+
+    .team-logo-preview {
+      width: 64px;
+      height: 64px;
+      margin: 10px auto 0;
+      display: block;
+    }
+
+    .vs-badge {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--gold);
+      text-align: center;
+      letter-spacing: 2px;
+      text-shadow: 0 0 20px rgba(201,168,76,0.4);
+    }
+
+    /* ---- H2H RESULT SUMMARY ---- */
+    .h2h-summary {
+      display: none;
+    }
+
+    .h2h-summary.visible { display: block; }
+
+    .h2h-banner {
+      background: linear-gradient(135deg, var(--navy-light), var(--navy-card));
+      border: 1px solid var(--navy-border);
+      border-radius: 12px;
+      padding: 28px 24px;
+      margin-bottom: 28px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 20px;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .h2h-banner::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    }
+
+    .h2h-team-side { text-align: center; }
+
+    .h2h-team-name {
+      font-family: var(--font-display);
+      font-size: clamp(14px, 3vw, 20px);
+      letter-spacing: 2px;
+      color: var(--white);
+      margin-top: 10px;
+    }
+
+    .h2h-record-center { text-align: center; }
+
+    .h2h-wins {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .win-count {
+      font-family: var(--font-display);
+      font-size: 52px;
+      line-height: 1;
+      color: var(--gold);
+    }
+
+    .win-dash {
+      font-family: var(--font-display);
+      font-size: 32px;
+      color: var(--muted);
+    }
+
+    .win-label {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .draws-info {
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* ---- WIN BAR ---- */
+    .win-bar-wrap {
+      margin-bottom: 28px;
+    }
+
+    .win-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-ui);
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .win-bar-track {
+      height: 10px;
+      background: var(--navy-border);
+      border-radius: 5px;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .win-bar-home {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+      border-radius: 5px 0 0 5px;
+      transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    .win-bar-draw {
+      height: 100%;
+      background: var(--muted);
+    }
+
+    .win-bar-away {
+      height: 100%;
+      background: linear-gradient(90deg, #4488ff, #0066dd);
+      border-radius: 0 5px 5px 0;
+      transition: width 0.9s cubic-bezier(0.4,0,0.2,1);
+    }
+
+    /* ---- STATS GRID ---- */
+    .h2h-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .h2h-stat-box {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 16px 12px;
+      text-align: center;
+    }
+
+    .h2h-stat-num {
+      font-family: var(--font-display);
+      font-size: 30px;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .h2h-stat-lbl {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    /* ---- MATCH HISTORY ---- */
+    .h2h-match {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      margin-bottom: 8px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .h2h-match-team {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .h2h-match-team.away { flex-direction: row-reverse; text-align: right; }
+
+    .h2h-score {
+      font-family: var(--font-display);
+      font-size: 24px;
+      color: var(--gold);
+      text-align: center;
+      letter-spacing: 2px;
+    }
+
+    .h2h-match-date {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .h2h-match.home-win { border-left: 3px solid var(--gold); }
+    .h2h-match.away-win { border-right: 3px solid #4488ff; }
+    .h2h-match.draw     { border-left: 3px solid var(--muted); }
+
+    .upcoming-badge {
+      background: rgba(201,168,76,0.1);
+      border: 1px solid var(--gold-dark);
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin-bottom: 8px;
+      font-family: var(--font-ui);
+      font-size: 13px;
+      color: var(--gold);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 40px 20px;
+      font-family: var(--font-ui);
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+
+    @media (max-width: 600px) {
+      .h2h-selector { grid-template-columns: 1fr; gap: 12px; }
+      .vs-badge { font-size: 20px; }
+      .h2h-banner { grid-template-columns: 1fr; gap: 12px; }
+      .h2h-record-center { order: -1; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <a class="logo-area" href="index.html">
+      <img src="league-logo.jpg" alt="eFootball PL 2026"/>
+      <div class="logo-text">
+        <span class="league-name">eFOOTBALL PL</span>
+        <span class="season">2026 Season</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Table</a>
+      <a href="fixtures.html">Fixtures</a>
+      <a href="scorers.html">Golden Boot</a>
+      <a href="h2h.html" class="active">H2H</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="page-title">Head to Head</div>
+  <div class="page-subtitle">Compare any two teams · Full record</div>
+
+  <!-- TEAM SELECTOR -->
+  <div class="h2h-selector">
+    <div class="team-picker">
+      <label>Home Team</label>
+      <select id="teamA">
+        <option value="">— Select Team —</option>
+      </select>
+      <img class="team-logo-preview" id="logoA" src="" style="display:none;border-radius:50%;"/>
+    </div>
+
+    <div class="vs-badge">VS</div>
+
+    <div class="team-picker">
+      <label>Away Team</label>
+      <select id="teamB">
+        <option value="">— Select Team —</option>
+      </select>
+      <img class="team-logo-preview" id="logoB" src="" style="display:none;border-radius:50%;"/>
+    </div>
+  </div>
+
+  <!-- H2H RESULTS -->
+  <div class="h2h-summary" id="h2hSummary">
+
+    <!-- BANNER -->
+    <div class="h2h-banner">
+      <div class="h2h-team-side">
+        <div id="bannerLogoA"></div>
+        <div class="h2h-team-name" id="bannerNameA">—</div>
+      </div>
+      <div class="h2h-record-center">
+        <div class="h2h-wins">
+          <div>
+            <div class="win-count" id="winsA">0</div>
+            <div class="win-label">Wins</div>
+          </div>
+          <div class="win-dash">–</div>
+          <div>
+            <div class="win-count" id="drawsC" style="color:var(--muted);font-size:36px;">0</div>
+            <div class="win-label">Draws</div>
+          </div>
+          <div class="win-dash">–</div>
+          <div>
+            <div class="win-count" id="winsB">0</div>
+            <div class="win-label">Wins</div>
+          </div>
+        </div>
+        <div class="draws-info" id="totalMatchesPlayed">0 matches played</div>
+      </div>
+      <div class="h2h-team-side">
+        <div id="bannerLogoB"></div>
+        <div class="h2h-team-name" id="bannerNameB">—</div>
+      </div>
+    </div>
+
+    <!-- WIN BAR -->
+    <div class="win-bar-wrap">
+      <div class="win-bar-labels">
+        <span id="barLabelA">—</span>
+        <span id="barLabelDraw">Draws</span>
+        <span id="barLabelB">—</span>
+      </div>
+      <div class="win-bar-track">
+        <div class="win-bar-home" id="barHome" style="width:0%"></div>
+        <div class="win-bar-draw" id="barDraw" style="width:0%"></div>
+        <div class="win-bar-away" id="barAway" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- STATS GRID -->
+    <div class="h2h-stats-grid">
+      <div class="h2h-stat-box">
+        <div class="h2h-stat-num" id="statTotalGoals">0</div>
+        <div class="h2h-stat-lbl">Total Goals</div>
+      </div>
+      <div class="h2h-stat-box">
+        <div class="h2h-stat-num" id="statAvgGoals">0.0</div>
+        <div class="h2h-stat-lbl">Avg Goals / Match</div>
+      </div>
+      <div class="h2h-stat-box">
+        <div class="h2h-stat-num" id="statGoalsA">0</div>
+        <div class="h2h-stat-lbl" id="statGoalsALabel">Team A Goals</div>
+      </div>
+      <div class="h2h-stat-box">
+        <div class="h2h-stat-num" id="statGoalsB">0</div>
+        <div class="h2h-stat-lbl" id="statGoalsBLabel">Team B Goals</div>
+      </div>
+    </div>
+
+    <!-- UPCOMING H2H -->
+    <div id="upcomingSection" style="margin-bottom:24px;display:none;">
+      <div class="section-heading">Upcoming Fixtures</div>
+      <div id="upcomingMatches"></div>
+    </div>
+
+    <!-- MATCH HISTORY -->
+    <div class="section-heading">Match History</div>
+    <div id="matchHistory">
+      <div class="no-results">No played matches yet between these teams.</div>
+    </div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<footer>
+  <p>Created by <span>ZiezGeek</span> · eFootball PL 2026 · All Rights Reserved</p>
+</footer>
+
+<script type="module" src="h2h.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

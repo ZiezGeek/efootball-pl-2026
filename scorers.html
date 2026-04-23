@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>eFootball PL 2026 — Golden Boot</title>
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="league-logo.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#c9a84c"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="ePL 2026"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+  <style>
+    .golden-boot-hero {
+      text-align: center;
+      padding: 32px 0 16px;
+      margin-bottom: 28px;
+    }
+
+    .boot-icon {
+      font-size: 56px;
+      display: block;
+      margin-bottom: 12px;
+      animation: glow 2.5s ease infinite;
+    }
+
+    @keyframes glow {
+      0%,100% { filter: drop-shadow(0 0 10px rgba(201,168,76,0.4)); }
+      50%      { filter: drop-shadow(0 0 28px rgba(201,168,76,0.9)); }
+    }
+
+    .scorer-row {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 10px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      display: grid;
+      grid-template-columns: 52px auto 1fr auto;
+      align-items: center;
+      gap: 14px;
+      transition: border-color 0.2s, transform 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scorer-row:hover {
+      border-color: var(--gold-dark);
+      transform: translateX(4px);
+    }
+
+    .scorer-row.rank-1 {
+      border: 1px solid var(--gold);
+      background: linear-gradient(135deg, rgba(201,168,76,0.08), var(--navy-card));
+    }
+
+    .scorer-row.rank-1::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--gold), var(--gold-dark));
+    }
+
+    .scorer-row.rank-2 { border-left: 3px solid #aab0ba; }
+    .scorer-row.rank-3 { border-left: 3px solid #cd7f32; }
+
+    .rank-num {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1;
+    }
+
+    .rank-1 .rank-num { color: var(--gold); font-size: 32px; }
+    .rank-2 .rank-num { color: #aab0ba; }
+    .rank-3 .rank-num { color: #cd7f32; }
+
+    .scorer-meta { }
+
+    .scorer-player-name {
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--white);
+      line-height: 1.2;
+    }
+
+    .scorer-team-name {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .goal-count {
+      font-family: var(--font-display);
+      font-size: 36px;
+      color: var(--gold);
+      line-height: 1;
+      text-align: right;
+    }
+
+    .goal-label {
+      font-family: var(--font-ui);
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    .goal-bar-wrap {
+      height: 3px;
+      background: var(--navy-border);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+
+    .goal-bar {
+      height: 100%;
+      background: linear-gradient(90deg, var(--gold-dark), var(--gold));
+      border-radius: 2px;
+      transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .empty-scorers {
+      text-align: center;
+      padding: 60px 20px;
+      font-family: var(--font-ui);
+      color: var(--muted);
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    .empty-scorers .big {
+      font-size: 48px;
+      display: block;
+      margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a class="logo-area" href="index.html">
+      <img src="league-logo.jpg" alt="eFootball PL 2026"/>
+      <div class="logo-text">
+        <span class="league-name">eFOOTBALL PL</span>
+        <span class="season">2026 Season</span>
+      </div>
+    </a>
+    <nav>
+      <a href="index.html">Table</a>
+      <a href="fixtures.html">Fixtures</a>
+      <a href="scorers.html" class="active">Golden Boot</a>
+      <a href="h2h.html">H2H</a>
+      <a href="team.html">Teams</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="golden-boot-hero">
+    <span class="boot-icon">🥇</span>
+    <div class="page-title">Golden Boot</div>
+    <div class="page-subtitle">Top Scorers · eFootball PL 2026</div>
+  </div>
+
+  <div class="section-heading">Top Scorers</div>
+  <div id="scorerList">
+    <div class="loading"><div class="spinner"></div><br/>Loading scorers...</div>
+  </div>
+</main>
+
+<div id="toast"></div>
+
+<footer>
+  <p>Created by <span>ZiezGeek</span> · eFootball PL 2026 · All Rights Reserved</p>
+</footer>
+
+<script type="module">
+import { db } from './firebase-config.js';
+import { ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getTeamById } from './data.js';
+import { getTeamLogo } from './logos.js';
+
+onValue(ref(db, 'scorers'), (snap) => {
+  const container = document.getElementById('scorerList');
+  if (!snap.exists()) {
+    container.innerHTML = `<div class="empty-scorers"><span class="big">⚽</span>No scorers recorded yet.<br/>Check back after matches are played.</div>`;
+    return;
+  }
+
+  const sorted = Object.values(snap.val())
+    .sort((a, b) => b.goals - a.goals);
+
+  const max = sorted[0]?.goals || 1;
+  const medals = ['🥇','🥈','🥉'];
+
+  container.innerHTML = sorted.map((s, i) => {
+    const t = getTeamById(s.team);
+    const rankClass = i < 3 ? `rank-${i+1}` : '';
+    const rankDisplay = i < 3 ? medals[i] : i + 1;
+    const barPct = Math.round((s.goals / max) * 100);
+
+    return `
+      <div class="scorer-row ${rankClass}">
+        <div class="rank-num">${rankDisplay}</div>
+        <div>${getTeamLogo(s.team, 36)}</div>
+        <div class="scorer-meta">
+          <div class="scorer-player-name">${s.name}</div>
+          <div class="scorer-team-name">${t?.name || s.team}</div>
+          <div class="goal-bar-wrap">
+            <div class="goal-bar" style="width:${barPct}%"></div>
+          </div>
+        </div>
+        <div>
+          <div class="goal-count">${s.goals}</div>
+          <div class="goal-label">goals</div>
+        </div>
+      </div>`;
+  }).join('');
+});
+</script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

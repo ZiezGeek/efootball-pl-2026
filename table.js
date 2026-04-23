@@ -1,20 +1,14 @@
 // =============================================
-//  TABLE.JS — League Table Logic
+//  TABLE.JS — Public league table (read-only)
 // =============================================
 
 import { db } from './firebase-config.js';
 import { ref, get, set, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 import { TEAMS, generateFixtures, computeTable, getTeamById } from './data.js';
 import { getTeamLogo } from './logos.js';
-import { showToast, setupAdminPin, hashPin } from './admin.js';
 
-const ADMIN_PIN_HASH = hashPin("020707");
 const fixturesRef = ref(db, 'fixtures');
 const tableBody = document.getElementById('tableBody');
-
-// =============================================
-//  INITIALISE: seed fixtures if first time
-// =============================================
 
 async function init() {
   const snap = await get(fixturesRef);
@@ -23,13 +17,8 @@ async function init() {
     const obj = {};
     fixtures.forEach(f => { obj[f.id] = f; });
     await set(fixturesRef, obj);
-    console.log('Fixtures seeded to Firebase.');
   }
 }
-
-// =============================================
-//  RENDER TABLE
-// =============================================
 
 function renderTable(fixtures) {
   const arr = Object.values(fixtures);
@@ -45,7 +34,7 @@ function renderTable(fixtures) {
   document.getElementById('statGoals').textContent = goals;
   document.getElementById('statFixtures').textContent = remaining;
 
-  // Compute form per team
+  // Form tracker
   const form = {};
   TEAMS.forEach(t => { form[t.id] = []; });
   const playedMatches = arr.filter(f => f.played)
@@ -57,9 +46,9 @@ function renderTable(fixtures) {
       if (!form[tid]) form[tid] = [];
       if (form[tid].length < 5) form[tid].push(result);
     };
-    if (hs > as) { addForm(f.homeTeam, 'W'); addForm(f.awayTeam, 'L'); }
+    if (hs > as)      { addForm(f.homeTeam, 'W'); addForm(f.awayTeam, 'L'); }
     else if (hs < as) { addForm(f.homeTeam, 'L'); addForm(f.awayTeam, 'W'); }
-    else { addForm(f.homeTeam, 'D'); addForm(f.awayTeam, 'D'); }
+    else              { addForm(f.homeTeam, 'D'); addForm(f.awayTeam, 'D'); }
   });
 
   tableBody.innerHTML = sorted.map((team, i) => {
@@ -94,24 +83,8 @@ function renderTable(fixtures) {
   }).join('');
 }
 
-// =============================================
-//  REAL-TIME LISTENER
-// =============================================
-
 onValue(fixturesRef, (snap) => {
-  if (snap.exists()) {
-    renderTable(snap.val());
-  }
+  if (snap.exists()) renderTable(snap.val());
 });
 
-// =============================================
-//  ADMIN PIN SETUP
-// =============================================
-
-setupAdminPin(ADMIN_PIN_HASH, () => {
-  // On unlock: redirect to fixtures page (admin is there)
-  window.location.href = 'fixtures.html?admin=1';
-});
-
-// INIT
 init().catch(console.error);

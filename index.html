@@ -6,6 +6,11 @@
   <title>eFootball PL 2026 — League Table</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="icon" href="league-logo.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#c9a84c"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="ePL 2026"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
 </head>
 <body>
 
@@ -22,7 +27,9 @@
     <nav>
       <a href="index.html" class="active">Table</a>
       <a href="fixtures.html">Fixtures</a>
-      <a href="#" class="admin-btn" id="openAdmin">⚙ Admin</a>
+      <a href="scorers.html">Golden Boot</a>
+      <a href="h2h.html">H2H</a>
+      <a href="team.html">Teams</a>
     </nav>
   </div>
 </header>
@@ -73,20 +80,6 @@
   </div>
 </main>
 
-<!-- ADMIN MODAL: PIN -->
-<div class="modal-overlay hidden" id="pinOverlay">
-  <div class="modal">
-    <h2>🔐 Admin Access</h2>
-    <p>Enter the admin PIN to manage results.</p>
-    <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="10" inputmode="numeric"/>
-    <div class="error-msg hidden" id="pinError">Incorrect PIN. Try again.</div>
-    <div class="btn-row">
-      <button class="btn btn-gold" id="pinSubmit">Unlock</button>
-      <button class="btn btn-ghost" id="pinCancel">Cancel</button>
-    </div>
-  </div>
-</div>
-
 <!-- TOAST -->
 <div id="toast"></div>
 
@@ -96,5 +89,12 @@
 </footer>
 
 <script type="module" src="table.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>

@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — eFootball PL 2026</title>
+  <!-- NO link in public site. Access: yoursite.com/ziezgeek-admin.html -->
+  <link rel="stylesheet" href="style.css"/>
+  <link rel="icon" href="league-logo.jpg" type="image/jpeg"/>
+  <style>
+    /* Extra admin-only styles */
+    body { background: #020b14; }
+
+    #lockScreen {
+      position: fixed; inset: 0;
+      background: #020b14;
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    #lockScreen.hidden { display: none; }
+
+    .lock-card {
+      background: var(--navy-card);
+      border: 1px solid var(--gold-dark);
+      border-radius: 16px;
+      padding: 48px 40px;
+      width: 90%; max-width: 400px;
+      text-align: center;
+      box-shadow: 0 0 80px rgba(201,168,76,0.08), 0 24px 80px rgba(0,0,0,0.8);
+      animation: fadeUp 0.5s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(24px); }
+      to   { opacity:1; transform: translateY(0); }
+    }
+
+    .lock-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      display: block;
+      animation: pulse 2s ease infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { filter: drop-shadow(0 0 8px rgba(201,168,76,0.3)); }
+      50%      { filter: drop-shadow(0 0 24px rgba(201,168,76,0.7)); }
+    }
+
+    .lock-title {
+      font-family: var(--font-display);
+      font-size: 28px;
+      letter-spacing: 4px;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .lock-sub {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .pin-dots {
+      display: flex; gap: 12px; justify-content: center; margin-bottom: 28px;
+    }
+
+    .pin-dot {
+      width: 14px; height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--gold-dark);
+      background: transparent;
+      transition: all 0.2s;
+    }
+
+    .pin-dot.filled {
+      background: var(--gold);
+      border-color: var(--gold);
+      box-shadow: 0 0 10px rgba(201,168,76,0.5);
+    }
+
+    .pin-dot.error {
+      background: var(--red);
+      border-color: var(--red);
+      animation: shake 0.3s ease;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      25%      { transform: translateX(-4px); }
+      75%      { transform: translateX(4px); }
+    }
+
+    .numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .numpad-btn {
+      background: var(--navy-light);
+      border: 1px solid var(--navy-border);
+      border-radius: 10px;
+      color: var(--white);
+      font-family: var(--font-display);
+      font-size: 22px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.15s;
+      letter-spacing: 1px;
+    }
+
+    .numpad-btn:hover { background: var(--navy-border); border-color: var(--gold-dark); color: var(--gold); }
+    .numpad-btn:active { transform: scale(0.93); }
+    .numpad-btn.del { font-size: 16px; color: var(--muted); }
+
+    /* ---- ADMIN DASHBOARD ---- */
+    #dashboard { display: none; }
+    #dashboard.visible { display: block; }
+
+    .admin-header {
+      background: linear-gradient(135deg, #020b14, #0a1628);
+      border-bottom: 2px solid var(--gold-dark);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 50;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.6);
+    }
+
+    .admin-badge {
+      display: flex; align-items: center; gap: 12px;
+    }
+
+    .admin-badge img { height: 40px; border-radius: 4px; }
+
+    .admin-label {
+      font-family: var(--font-display);
+      font-size: 18px;
+      letter-spacing: 3px;
+      color: var(--gold);
+    }
+
+    .admin-label span {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--green);
+      display: block;
+      font-family: var(--font-ui);
+    }
+
+    .admin-main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 20px 80px;
+    }
+
+    /* TABS */
+    .tab-bar {
+      display: flex; gap: 4px; margin-bottom: 28px;
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .tab-btn.active {
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #000;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* MATCH RESULT ENTRY */
+    .match-list-admin { display: flex; flex-direction: column; gap: 8px; }
+
+    .match-row-admin {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto;
+      align-items: center;
+      gap: 12px;
+      transition: border-color 0.2s;
+    }
+
+    .match-row-admin:hover { border-color: var(--gold-dark); }
+
+    .match-row-admin.played { border-left: 3px solid var(--gold); }
+
+    .team-label-admin {
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 13px;
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .team-label-admin.away { flex-direction: row-reverse; text-align: right; }
+
+    .score-entry {
+      display: flex; align-items: center; gap: 8px;
+    }
+
+    .score-entry input {
+      width: 46px;
+      text-align: center;
+      background: var(--navy-light);
+      border: 1px solid var(--navy-border);
+      border-radius: 6px;
+      color: var(--gold);
+      font-family: var(--font-display);
+      font-size: 22px;
+      padding: 6px 4px;
+      outline: none;
+    }
+
+    .score-entry input:focus { border-color: var(--gold-dark); }
+
+    .score-sep {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--muted);
+    }
+
+    .save-match-btn {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: var(--gold-dark);
+      color: #000;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .save-match-btn:hover { background: var(--gold); transform: scale(1.04); }
+
+    .clear-match-btn {
+      font-family: var(--font-ui);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 6px;
+      border: 1px solid rgba(255,68,68,0.3);
+      cursor: pointer;
+      background: rgba(255,68,68,0.1);
+      color: var(--red);
+      transition: all 0.15s;
+    }
+
+    .clear-match-btn:hover { background: rgba(255,68,68,0.2); }
+
+    /* DAY GROUP ADMIN */
+    .day-group-admin { margin-bottom: 28px; }
+
+    .day-label-admin {
+      font-family: var(--font-display);
+      font-size: 14px;
+      letter-spacing: 3px;
+      color: var(--gold-light);
+      padding: 6px 12px;
+      background: var(--navy-light);
+      border-radius: 4px;
+      margin-bottom: 10px;
+      border-left: 3px solid var(--gold);
+    }
+
+    /* FILTER ROW */
+    .filter-row {
+      display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+    }
+
+    /* SCORER PANEL */
+    .scorer-card {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 10px;
+    }
+
+    .scorer-rank {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--gold);
+      min-width: 36px;
+      text-align: center;
+    }
+
+    .scorer-info { flex: 1; }
+
+    .scorer-name {
+      font-family: var(--font-ui);
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--white);
+    }
+
+    .scorer-team {
+      font-family: var(--font-ui);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .scorer-goals {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--gold);
+    }
+
+    .scorer-goals span {
+      font-family: var(--font-ui);
+      font-size: 11px;
+      color: var(--muted);
+      display: block;
+      text-align: center;
+    }
+
+    .add-scorer-form {
+      background: var(--navy-card);
+      border: 1px solid var(--navy-border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 1fr 1fr auto auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .form-group label {
+      display: block;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      background: var(--navy-light);
+      border: 1px solid var(--navy-border);
+      border-radius: 6px;
+      color: var(--white);
+      font-family: var(--font-ui);
+      font-size: 14px;
+      padding: 9px 12px;
+      outline: none;
+    }
+
+    .form-group input:focus, .form-group select:focus { border-color: var(--gold-dark); }
+    .form-group select option { background: var(--navy-card); }
+
+    @media (max-width: 640px) {
+      .add-scorer-form { grid-template-columns: 1fr 1fr; }
+      .match-row-admin { grid-template-columns: 1fr; }
+      .score-entry { justify-content: center; }
+      .team-label-admin { justify-content: center; }
+      .team-label-admin.away { flex-direction: row; text-align: left; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ===== LOCK SCREEN ===== -->
+<div id="lockScreen">
+  <div class="lock-card">
+    <span class="lock-icon">🔐</span>
+    <div class="lock-title">ADMIN PANEL</div>
+    <div class="lock-sub">eFootball PL 2026 · ZiezGeek</div>
+
+    <div class="pin-dots" id="pinDots">
+      <div class="pin-dot" id="d0"></div>
+      <div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div>
+      <div class="pin-dot" id="d3"></div>
+      <div class="pin-dot" id="d4"></div>
+      <div class="pin-dot" id="d5"></div>
+    </div>
+
+    <div class="numpad" id="numpad">
+      <button class="numpad-btn" onclick="pinPress('1')">1</button>
+      <button class="numpad-btn" onclick="pinPress('2')">2</button>
+      <button class="numpad-btn" onclick="pinPress('3')">3</button>
+      <button class="numpad-btn" onclick="pinPress('4')">4</button>
+      <button class="numpad-btn" onclick="pinPress('5')">5</button>
+      <button class="numpad-btn" onclick="pinPress('6')">6</button>
+      <button class="numpad-btn" onclick="pinPress('7')">7</button>
+      <button class="numpad-btn" onclick="pinPress('8')">8</button>
+      <button class="numpad-btn" onclick="pinPress('9')">9</button>
+      <button class="numpad-btn del" onclick="pinPress('clear')">CLR</button>
+      <button class="numpad-btn" onclick="pinPress('0')">0</button>
+      <button class="numpad-btn del" onclick="pinPress('back')">⌫</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div id="dashboard">
+
+  <!-- Admin Header -->
+  <div class="admin-header">
+    <div class="admin-badge">
+      <img src="league-logo.jpg" alt="logo"/>
+      <div class="admin-label">
+        Admin Panel
+        <span>🟢 Authenticated · ZiezGeek</span>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;">
+      <a href="index.html" class="btn btn-ghost" style="font-size:11px;padding:8px 14px;">← Public Site</a>
+      <button class="btn btn-danger" onclick="lockOut()" style="font-size:11px;padding:8px 14px;">🔒 Lock</button>
+    </div>
+  </div>
+
+  <div class="admin-main">
+
+    <!-- TABS -->
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('results')">⚽ Results</button>
+      <button class="tab-btn" onclick="switchTab('scorers')">🏆 Top Scorers</button>
+      <button class="tab-btn" onclick="switchTab('settings')">⚙ Settings</button>
+    </div>
+
+    <!-- TAB: RESULTS -->
+    <div class="tab-panel active" id="tab-results">
+      <div class="section-heading">Enter Match Results</div>
+
+      <div class="filter-row">
+        <button class="btn btn-gold" id="fa-all" onclick="setAdminFilter('all')">All</button>
+        <button class="btn btn-ghost" id="fa-upcoming" onclick="setAdminFilter('upcoming')">Upcoming</button>
+        <button class="btn btn-ghost" id="fa-played" onclick="setAdminFilter('played')">Played</button>
+      </div>
+
+      <div id="adminMatchList">
+        <div class="loading"><div class="spinner"></div><br/>Loading matches...</div>
+      </div>
+    </div>
+
+    <!-- TAB: TOP SCORERS -->
+    <div class="tab-panel" id="tab-scorers">
+      <div class="section-heading">🏆 Top Scorers — Golden Boot</div>
+
+      <div class="add-scorer-form">
+        <div class="form-group">
+          <label>Player Name</label>
+          <input type="text" id="scorerName" placeholder="e.g. Messi"/>
+        </div>
+        <div class="form-group">
+          <label>Team</label>
+          <select id="scorerTeam"></select>
+        </div>
+        <div class="form-group">
+          <label>Goals</label>
+          <input type="number" id="scorerGoals" min="0" max="99" placeholder="0" style="width:70px;"/>
+        </div>
+        <button class="btn btn-gold" onclick="saveScorer()" style="height:40px;align-self:end;">Add / Update</button>
+      </div>
+
+      <div id="scorerList">
+        <div class="loading"><div class="spinner"></div><br/>Loading scorers...</div>
+      </div>
+    </div>
+
+    <!-- TAB: SETTINGS -->
+    <div class="tab-panel" id="tab-settings">
+      <div class="section-heading">⚙ League Settings</div>
+
+      <div class="card" style="padding:24px;">
+        <p style="font-family:var(--font-ui);color:var(--muted);margin-bottom:20px;font-size:13px;">
+          Danger zone — use with care.
+        </p>
+
+        <div class="btn-row">
+          <button class="btn btn-danger" onclick="resetAllResults()">🗑 Reset ALL Results</button>
+          <button class="btn btn-ghost" onclick="regenFixtures()">🔄 Regenerate Fixtures (this week)</button>
+        </div>
+
+        <br/><br/>
+        <div class="section-heading" style="font-size:14px;">Admin URL</div>
+        <p style="font-family:var(--font-ui);font-size:13px;color:var(--muted);margin-top:8px;">
+          This page is only accessible at:<br/>
+          <code style="color:var(--gold);font-size:13px;">yoursite.com/ziezgeek-admin.html</code><br/><br/>
+          It is <strong style="color:var(--green);">not linked</strong> anywhere on the public website.
+          Share only with yourself.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script type="module">
+import { db } from './firebase-config.js';
+import { ref, get, set, update, remove, onValue } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { TEAMS, generateFixtures, formatDate, formatTime, getTeamById } from './data.js';
+import { getTeamLogo } from './logos.js';
+
+// =============================================
+//  PIN LOGIC — Beautiful numpad
+// =============================================
+const CORRECT_PIN = "020707";
+let pinEntry = "";
+
+window.pinPress = function(val) {
+  if (val === 'back') { pinEntry = pinEntry.slice(0,-1); }
+  else if (val === 'clear') { pinEntry = ""; }
+  else if (pinEntry.length < 6) { pinEntry += val; }
+
+  updateDots();
+
+  if (pinEntry.length === 6) {
+    setTimeout(() => {
+      if (pinEntry === CORRECT_PIN) {
+        document.getElementById('lockScreen').classList.add('hidden');
+        document.getElementById('dashboard').classList.add('visible');
+        initDashboard();
+      } else {
+        // Error animation
+        for (let i=0;i<6;i++) document.getElementById('d'+i).classList.add('error');
+        setTimeout(() => {
+          for (let i=0;i<6;i++) document.getElementById('d'+i).classList.remove('error');
+          pinEntry = "";
+          updateDots();
+        }, 700);
+      }
+    }, 150);
+  }
+};
+
+function updateDots() {
+  for (let i = 0; i < 6; i++) {
+    const d = document.getElementById('d'+i);
+    d.classList.toggle('filled', i < pinEntry.length);
+  }
+}
+
+window.lockOut = function() {
+  pinEntry = "";
+  updateDots();
+  document.getElementById('lockScreen').classList.remove('hidden');
+  document.getElementById('dashboard').classList.remove('visible');
+};
+
+// =============================================
+//  TOAST
+// =============================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._to);
+  t._to = setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// =============================================
+//  TABS
+// =============================================
+window.switchTab = function(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+};
+
+// =============================================
+//  ADMIN FILTER
+// =============================================
+let adminFilter = 'all';
+window.setAdminFilter = function(f) {
+  adminFilter = f;
+  ['all','upcoming','played'].forEach(x => {
+    document.getElementById('fa-'+x).className = x === f ? 'btn btn-gold' : 'btn btn-ghost';
+  });
+  renderAdminMatches();
+};
+
+// =============================================
+//  INIT DASHBOARD
+// =============================================
+let allFixtures = {};
+let allScorers = {};
+
+async function initDashboard() {
+  // Ensure fixtures exist
+  const snap = await get(ref(db, 'fixtures'));
+  if (!snap.exists()) {
+    const fx = generateFixtures();
+    const obj = {};
+    fx.forEach(f => { obj[f.id] = f; });
+    await set(ref(db, 'fixtures'), obj);
+  }
+
+  // Populate team selects
+  const sel = document.getElementById('scorerTeam');
+  sel.innerHTML = TEAMS.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+  // Live listeners
+  onValue(ref(db, 'fixtures'), snap => {
+    allFixtures = snap.exists() ? snap.val() : {};
+    renderAdminMatches();
+  });
+
+  onValue(ref(db, 'scorers'), snap => {
+    allScorers = snap.exists() ? snap.val() : {};
+    renderScorers();
+  });
+}
+
+// =============================================
+//  RENDER ADMIN MATCH LIST
+// =============================================
+function renderAdminMatches() {
+  const container = document.getElementById('adminMatchList');
+  let arr = Object.values(allFixtures);
+
+  if (adminFilter === 'upcoming') arr = arr.filter(f => !f.played);
+  if (adminFilter === 'played') arr = arr.filter(f => f.played);
+
+  arr.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+  // Group by day
+  const groups = {};
+  arr.forEach(f => {
+    const d = formatDate(f.date);
+    if (!groups[d]) groups[d] = [];
+    groups[d].push(f);
+  });
+
+  if (arr.length === 0) {
+    container.innerHTML = `<div class="loading">No matches.</div>`;
+    return;
+  }
+
+  container.innerHTML = Object.entries(groups).map(([day, matches]) => `
+    <div class="day-group-admin">
+      <div class="day-label-admin">${day}</div>
+      <div class="match-list-admin">
+        ${matches.map(renderAdminRow).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderAdminRow(f) {
+  const h = getTeamById(f.homeTeam);
+  const a = getTeamById(f.awayTeam);
+  if (!h || !a) return '';
+  const hs = f.played ? f.homeScore : '';
+  const as_ = f.played ? f.awayScore : '';
+
+  return `
+    <div class="match-row-admin ${f.played ? 'played' : ''}" id="row-${f.id}">
+      <div class="team-label-admin">
+        ${getTeamLogo(h.id, 24)}
+        <span>${h.name}</span>
+      </div>
+      <div class="score-entry">
+        <input type="number" id="hs-${f.id}" min="0" max="99" value="${hs}" placeholder="–" onkeydown="handleScoreKey(event,'${f.id}')"/>
+        <span class="score-sep">–</span>
+        <input type="number" id="as-${f.id}" min="0" max="99" value="${as_}" placeholder="–" onkeydown="handleScoreKey(event,'${f.id}')"/>
+      </div>
+      <div class="team-label-admin away">
+        ${getTeamLogo(a.id, 24)}
+        <span>${a.name}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;">
+        <button class="save-match-btn" onclick="saveMatchResult('${f.id}')">SAVE</button>
+        ${f.played ? `<button class="clear-match-btn" onclick="clearMatchResult('${f.id}')">✕ CLR</button>` : ''}
+      </div>
+    </div>`;
+}
+
+window.handleScoreKey = function(e, id) {
+  if (e.key === 'Enter') saveMatchResult(id);
+};
+
+window.saveMatchResult = async function(id) {
+  const hs = document.getElementById('hs-'+id)?.value;
+  const as = document.getElementById('as-'+id)?.value;
+  if (hs === '' || as === '') { showToast('Enter both scores'); return; }
+
+  await update(ref(db, `fixtures/${id}`), {
+    homeScore: parseInt(hs),
+    awayScore: parseInt(as),
+    played: true
+  });
+  showToast('✅ Result saved!');
+};
+
+window.clearMatchResult = async function(id) {
+  await update(ref(db, `fixtures/${id}`), {
+    homeScore: null, awayScore: null, played: false
+  });
+  showToast('Result cleared');
+};
+
+// =============================================
+//  SCORERS
+// =============================================
+window.saveScorer = async function() {
+  const name = document.getElementById('scorerName').value.trim();
+  const team = document.getElementById('scorerTeam').value;
+  const goals = parseInt(document.getElementById('scorerGoals').value);
+
+  if (!name || !team || isNaN(goals)) { showToast('Fill all fields'); return; }
+
+  const key = name.toLowerCase().replace(/\s+/g, '_');
+  await set(ref(db, `scorers/${key}`), { name, team, goals });
+  document.getElementById('scorerName').value = '';
+  document.getElementById('scorerGoals').value = '';
+  showToast(`✅ ${name} — ${goals} goals saved`);
+};
+
+function renderScorers() {
+  const container = document.getElementById('scorerList');
+  const sorted = Object.entries(allScorers)
+    .map(([k,v]) => ({key:k,...v}))
+    .sort((a,b) => b.goals - a.goals);
+
+  if (sorted.length === 0) {
+    container.innerHTML = `<div style="font-family:var(--font-ui);color:var(--muted);font-size:13px;padding:20px 0;">No scorers yet. Add your first one above.</div>`;
+    return;
+  }
+
+  container.innerHTML = sorted.map((s, i) => {
+    const t = getTeamById(s.team);
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+    return `
+      <div class="scorer-card">
+        <div class="scorer-rank">${medal || (i+1)}</div>
+        ${getTeamLogo(s.team, 32)}
+        <div class="scorer-info">
+          <div class="scorer-name">${s.name}</div>
+          <div class="scorer-team">${t?.name || s.team}</div>
+        </div>
+        <div class="scorer-goals">${s.goals}<span>goals</span></div>
+        <button class="clear-match-btn" onclick="deleteScorer('${s.key}')">✕</button>
+      </div>`;
+  }).join('');
+}
+
+window.deleteScorer = async function(key) {
+  await remove(ref(db, `scorers/${key}`));
+  showToast('Scorer removed');
+};
+
+// =============================================
+//  SETTINGS
+// =============================================
+window.resetAllResults = async function() {
+  if (!confirm('Reset ALL results? This cannot be undone!')) return;
+  const snap = await get(ref(db, 'fixtures'));
+  if (!snap.exists()) return;
+  const updates = {};
+  Object.keys(snap.val()).forEach(k => {
+    updates[`fixtures/${k}/played`] = false;
+    updates[`fixtures/${k}/homeScore`] = null;
+    updates[`fixtures/${k}/awayScore`] = null;
+  });
+  await update(ref(db), updates);
+  showToast('✅ All results cleared');
+};
+
+window.regenFixtures = async function() {
+  if (!confirm('Regenerate fixtures for this week? Existing results will be lost!')) return;
+  const fx = generateFixtures();
+  const obj = {};
+  fx.forEach(f => { obj[f.id] = f; });
+  await set(ref(db, 'fixtures'), obj);
+  showToast('✅ Fixtures regenerated for this week');
+};
+
+</script>
+</body>
+</html>

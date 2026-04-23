@@ -6,6 +6,11 @@
   <title>eFootball PL 2026 — Fixtures & Results</title>
   <link rel="stylesheet" href="style.css"/>
   <link rel="icon" href="league-logo.jpg" type="image/jpeg"/>
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#c9a84c"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="ePL 2026"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
 </head>
 <body>
 
@@ -22,19 +27,19 @@
     <nav>
       <a href="index.html">Table</a>
       <a href="fixtures.html" class="active">Fixtures</a>
-      <a href="#" class="admin-btn" id="openAdmin">⚙ Admin</a>
+      <a href="scorers.html">Golden Boot</a>
+      <a href="h2h.html">H2H</a>
+      <a href="team.html">Teams</a>
     </nav>
   </div>
 </header>
 
-<!-- MAIN -->
 <main>
-  <div class="page-title">Fixtures & Results</div>
-  <div class="page-subtitle">Home & Away · 90 Matches Total</div>
+  <div class="page-title">Fixtures &amp; Results</div>
+  <div class="page-subtitle">Home &amp; Away &middot; 90 Matches Total</div>
 
-  <!-- FILTER BAR -->
   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px;">
-    <button class="btn btn-gold" id="filterAll" onclick="setFilter('all')">All</button>
+    <button class="btn btn-gold" id="filterAll" onclick="setFilter('all')">All Matches</button>
     <button class="btn btn-ghost" id="filterPlayed" onclick="setFilter('played')">Results</button>
     <button class="btn btn-ghost" id="filterUpcoming" onclick="setFilter('upcoming')">Upcoming</button>
   </div>
@@ -44,49 +49,10 @@
   </div>
 </main>
 
-<!-- ADMIN MODAL: PIN -->
-<div class="modal-overlay hidden" id="pinOverlay">
-  <div class="modal">
-    <h2>🔐 Admin Access</h2>
-    <p>Enter the admin PIN to manage results.</p>
-    <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="10" inputmode="numeric"/>
-    <div class="error-msg hidden" id="pinError">Incorrect PIN. Try again.</div>
-    <div class="btn-row">
-      <button class="btn btn-gold" id="pinSubmit">Unlock</button>
-      <button class="btn btn-ghost" id="pinCancel">Cancel</button>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN MODAL: ENTER RESULT -->
-<div class="modal-overlay hidden" id="resultOverlay">
-  <div class="modal">
-    <h2>⚽ Enter Result</h2>
-    <p>Select a match and enter the score.</p>
-
-    <select id="matchSelect"><option value="">— Select Match —</option></select>
-    <div class="match-select-info" id="matchInfo">Select a match above</div>
-
-    <div class="score-input-row">
-      <input type="number" id="homeScore" min="0" max="99" placeholder="0"/>
-      <div class="score-dash">–</div>
-      <input type="number" id="awayScore" min="0" max="99" placeholder="0"/>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn btn-gold" id="saveResult">Save Result</button>
-      <button class="btn btn-danger" id="clearResult">Clear Result</button>
-      <button class="btn btn-ghost" id="closeResult">Close</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
 <div id="toast"></div>
 
-<!-- FOOTER -->
 <footer>
-  <p>Created by <span>ZiezGeek</span> · eFootball PL 2026 · All Rights Reserved</p>
+  <p>Created by <span>ZiezGeek</span> &middot; eFootball PL 2026 &middot; All Rights Reserved</p>
 </footer>
 
 <script>
@@ -99,6 +65,13 @@
     if (window._renderFixtures) window._renderFixtures();
   };
 </script>
-<script type="module" src="fixtures.js"></script>
+<script type="module" src="fixtures-public.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {});
+    });
+  }
+</script>
 </body>
 </html>

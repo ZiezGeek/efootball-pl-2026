@@ -271,15 +271,21 @@ table.league-table tbody td:nth-child(2) {
 }
 
 .team-logo-sm {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
   flex-shrink: 0;
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  padding: 2px;
+}
+
+.team-logo-sm img {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
 .team-name-full { font-weight: 700; }
